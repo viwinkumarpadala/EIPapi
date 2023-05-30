@@ -1,2 +1,2 @@
 
-This is a new eip insights api that I am trying to design.
+This is a new eips api that I am trying to design.
