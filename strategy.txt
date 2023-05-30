@@ -1,0 +1,23 @@
+->store all eips iformation in a database(eip,title,author,status,type,category,created date, created month, created year)
+
+->store all the pull requests in the database and update them continuously(eip, title, day, month, year, date, time url,
+ pr_number, merged_at)
+
+->other collections required: new proposals collection(drafts),updated status to review collection, updated status to last call collection,
+updated status to final collection, stagnant status, withdrawn status 
+
+-->providing insights:
+->for a particular month and year that is specified, we can sort the collections for those details and return them.
+
+->providing yearly insights:
+->for a particular year, we can sort for each month and return all the information for each month in that in a form of object.
+
+->prs working:
+->1->if the prs is in the form of add, that is considered as a new proposal(draft),ex: 'Add EIP: Automatic Transaction Representation'
+->2-> if the title is in the form, "Update EIP-6963: Move to Review", it means the status should be updated to review
+
+
+->Type? => 'Update EIP-4973: When unequip the token must not be re-equipable'
+->Type? => 'Update dependency citation-js to v0.6.8'
+->Type? => 'Revert "CI: Revert to old version of eip-review-bot"'
+
