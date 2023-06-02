@@ -19,7 +19,7 @@ const fetchAllPRsData = async () => {
 
         do {
             response = await axios.get(
-                `https://api.github.com/repos/ethereum/EIPs/pulls?state=open&page=${page}&per_page=${perPage}`
+                `https://api.github.com/repos/ethereum/EIPs/pulls?state=all&page=${page}&per_page=${perPage}`
             );
             const prs = response.data;
             allPRs.push(...prs);
