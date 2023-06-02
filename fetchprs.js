@@ -52,18 +52,17 @@ const fetchAllPRsData = async () => {
 
             let dateString = obj.created_at;
 
-            // Convert the string to a Date object
+           
             let date = new Date(dateString);
 
-            // Extract the individual components
+           
             let year = date.getFullYear();
-            let month = date.getMonth() + 1; // Months are zero-based, so add 1
+            let month = date.getMonth() + 1; 
             let day = date.getDate();
             let hours = date.getHours();
             let minutes = date.getMinutes();
             let seconds = date.getSeconds();
 
-            // Format the components as needed
             const formattedDate = `${year}-${month}-${day}`;
             const formattedTime = `${hours}:${minutes}:${seconds}`;
 
@@ -75,7 +74,6 @@ const fetchAllPRsData = async () => {
 
             let string = obj.title;
 
-            // Extract the number using a regular expression
             const regex = /EIP-(\d+)/;
             const match = string.match(regex);
 
