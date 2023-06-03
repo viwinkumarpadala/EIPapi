@@ -3,9 +3,9 @@ const axios = require('axios');
 async function getFileCommitHistory() {
     try {
         const repositoryURL = 'https://api.github.com/repos/ethereum/EIPs';
-        const filePath = 'EIPS/eip-100.md';
+        const filePath = 'EIPS/eip-1.md';
         const commitsURL = `${repositoryURL}/commits`;
-        const accessToken = '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'; // Replace with your access token
+        const accessToken = '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'; 
 
         const response = await axios.get(commitsURL, {
             headers: {

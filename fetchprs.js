@@ -1,92 +1,43 @@
-const express = require('express')
-const axios = require('axios')
-
-const app = express()
-
-const port = 5000
-
-app.listen(port, () => { console.log(`listening to port ${port}!`) })
+const axios = require('axios');
 
 const fetchAllPRsData = async () => {
-    let allPRs = [];
-    let allPRsObjs = [];
-    let allPRsDBObjs = [];
-
     try {
-        let page = 1;
-        let perPage = 100;
-        let response;
+        const perPage = 100;
+        const response = await axios.get(
+            `https://api.github.com/repos/ethereum/EIPs/pulls?state=closed&per_page=${perPage}`
+        );
+        const allPRs = response.data.slice(0, 100); // Limit the PRs to the first 100 items
 
-        do {
-            response = await axios.get(
-                `https://api.github.com/repos/ethereum/EIPs/pulls?state=all&page=${page}&per_page=${perPage}`
-            );
-            const prs = response.data;
-            allPRs.push(...prs);
-            page++;
-            console.log('getting')
-        } while (response.headers.link && response.headers.link.includes('rel="next"'));
+        const allPRsDBObjs = allPRs.map((obj) => {
+            const {
+                merged_at,
+                number: pr_number,
+                title,
+                url,
+                created_at,
+            } = obj;
 
-        for (const obj of allPRs) {
-            allPRsObjs.push(obj);
-        }
-
-        for (const obj of allPRsObjs) {
-            let newobj = {
-                merged_at: "",
-                pr_number: "",
-                EIP: "",
-                title: "",
-                day: "",
-                month: "",
-                year: "",
-                date: "",
-                time: "",
-                url: ""
-            };
-
-            newobj.merged_at = obj.merged_at;
-            newobj.pr_number = obj.number;
-            newobj.title = obj.title;
-            newobj.url = obj.url;
-
-            let dateString = obj.created_at;
-
-           
-            let date = new Date(dateString);
-
-           
-            let year = date.getFullYear();
-            let month = date.getMonth() + 1; 
-            let day = date.getDate();
-            let hours = date.getHours();
-            let minutes = date.getMinutes();
-            let seconds = date.getSeconds();
-
-            const formattedDate = `${year}-${month}-${day}`;
-            const formattedTime = `${hours}:${minutes}:${seconds}`;
-
-            newobj.date = formattedDate;
-            newobj.year = year;
-            newobj.day = day;
-            newobj.month = month;
-            newobj.time = formattedTime;
-
-            let string = obj.title;
+            const date = new Date(created_at);
+            const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            const formattedTime = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
             const regex = /EIP-(\d+)/;
-            const match = string.match(regex);
+            const match = title.match(regex);
+            const EIP = match ? match[1] : '';
 
-            if (match) {
-                const number = match[1];
-                newobj.EIP = number;
-                // console.log('Number:', number);
-            } else {
-                console.log('Number not found in the string.');
-            }
-
-            allPRsDBObjs.push(newobj);
-        }
+            return {
+                merged_at,
+                pr_number,
+                EIP,
+                title,
+                day: date.getDate(),
+                month: date.getMonth() + 1,
+                year: date.getFullYear(),
+                date: formattedDate,
+                time: formattedTime,
+                url,
+            };
+        });
 
         console.log('Total Open PRs:', allPRsDBObjs.length);
         console.log(allPRsDBObjs);
