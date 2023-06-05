@@ -1,12 +1,14 @@
 const axios = require('axios');
+require('dotenv').config();
+const accessToken = process.env.ACCESS_TOKEN;
+
 
 async function getFileCommitHistory() {
     try {
         const repositoryURL = 'https://api.github.com/repos/ethereum/EIPs';
         const filePath = 'EIPS/eip-1.md';
         const commitsURL = `${repositoryURL}/commits`;
-        const accessToken = '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'; 
-
+        
         const response = await axios.get(commitsURL, {
             headers: {
                 Authorization: `Bearer ${accessToken}`

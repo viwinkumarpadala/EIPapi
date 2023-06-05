@@ -1,5 +1,8 @@
 const express= require ('express')
 const app= express()
+require('dotenv').config();
+const accessToken = process.env.ACCESS_TOKEN;
+
 
 const axios=require('axios')
 

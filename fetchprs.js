@@ -1,4 +1,7 @@
 const axios = require('axios');
+require('dotenv').config();
+
+const accessToken = process.env.ACCESS_TOKEN;
 
 const fetchAllPRsData = async () => {
     try {
