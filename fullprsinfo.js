@@ -135,6 +135,6 @@ const fetchPRDetails = async (prNumber) => {
     }
 };
 
-const prNumber = 7133;
+const prNumber = 3987;
 fetchPRDetails(prNumber);
 
