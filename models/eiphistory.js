@@ -14,7 +14,7 @@ const eipHistorySchema = new mongoose.Schema({
     mergedDay: { type: Number },
     mergedMonth: { type: Number },
     mergedYear: { type: Number },
-    commitSha: { type: String, unique: true },
+    commitSha: { type: String },
     commitDate: { type: Date },
 });
 

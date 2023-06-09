@@ -1,6 +1,7 @@
 const axios = require('axios');
 require('dotenv').config();
 const accessToken = process.env.ACCESS_TOKEN;
+console.log()
 
 const base64ToText = (base64Data) => {
     const buffer = Buffer.from(base64Data, 'base64');
