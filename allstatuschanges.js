@@ -2,6 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const StatusChange = require('./models/StatusChange');
+const EipHistory = require('./models/eiphistory');
 const MdFiles = require('./models/mdfiles');
 
 async function fetchAndStoreEipHistory() {
@@ -13,7 +14,6 @@ async function fetchAndStoreEipHistory() {
         });
         console.log('Connected to the database');
 
-        // Fetch unique EIP numbers from MdFiles collection
         const uniqueEipNumbers = await MdFiles.distinct('eip');
 
         // Iterate over each EIP number
@@ -52,10 +52,13 @@ function getStatusChangeHistory(commitHistory) {
                 fromStatus: previousCommit.status,
                 toStatus: currentCommit.status,
                 changeDate: currentCommit.mergedDate,
-                changeDay: currentCommit.mergedDay - 1,
-                changeMonth: currentCommit.mergedMonth,
-                changeYear: currentCommit.mergedYear,
             };
+
+            // Extract year, month, and day from changeDate
+            const changeDate = new Date(currentCommit.mergedDate);
+            statusChange.changedYear = changeDate.getFullYear();
+            statusChange.changedMonth = changeDate.getMonth() + 1;
+            statusChange.changedDay = changeDate.getDate();
 
             statusChangeHistory.unshift(statusChange);
         }
@@ -63,5 +66,6 @@ function getStatusChangeHistory(commitHistory) {
 
     return statusChangeHistory;
 }
+
 
 fetchAndStoreEipHistory();

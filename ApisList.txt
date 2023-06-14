@@ -4,6 +4,7 @@ done
 3)current statuses api (can be done)
 8)commit history of a .md file 
 2)Info for a particular pr number api   (can be done)
+4)status change api (can be done)
 
 current
 
@@ -12,5 +13,4 @@ current
 
 waiting 
 
-4)status change api (can be done)
 

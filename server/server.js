@@ -7,6 +7,7 @@ const { Octokit } = require('@octokit/rest');
 const mongoose = require('mongoose');
 const MdFiles = require('./models/mdfiles');
 const EipHistory=require('./models/eiphistory')
+const StatusChange = require('./models/StatusChange');
 require('dotenv').config();
 const accessToken = process.env.ACCESS_TOKEN;
 
@@ -462,5 +463,31 @@ app.get('/pr/:prNumber', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/statusChanges/:year/:month', async (req, res) => {
+    const { year, month } = req.params;
+
+    try {
+        // Convert year and month to numbers
+        const yearNum = parseInt(year);
+        const monthNum = parseInt(month);
+
+        // Get the start and end dates of the specified month and year
+        const startDate = new Date(yearNum, monthNum - 1, 1);
+        const endDate = new Date(yearNum, monthNum, 0);
+
+        // Query the database for status changes within the specified date range
+        const statusChanges = await StatusChange.find({
+            changeDate: { $gte: startDate, $lte: endDate },
+        });
+
+        console.log(statusChanges.length);
+
+        res.json(statusChanges);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'An error occurred' });
     }
 });

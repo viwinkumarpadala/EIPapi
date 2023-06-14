@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 // Define the StatusChange schema
 const statusChangeSchema = new mongoose.Schema({
+    eip: {
+        type: String,
+        required: true
+    }, 
     fromStatus: {
         type: String,
         required: true,

@@ -3,7 +3,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const EipHistory = require('./models/eiphistory');
 
-const eipno = 1;
+const eipno = 100;
 
 async function getCommitsWithEipNumber(eipNumber) {
     let overallhistory = [];
@@ -38,17 +38,14 @@ function getStatusChangeHistory(commitHistory) {
     const statusChangeHistory = [];
 
     for (let i = commitHistory.length - 1; i > 0; i--) {
-        const currentCommit = commitHistory[i - 1];
+        const currentCommit = commitHistory[i-1];
         const previousCommit = commitHistory[i];
 
         if (currentCommit.status !== previousCommit.status) {
             const statusChange = {
                 fromStatus: previousCommit.status,
                 toStatus: currentCommit.status,
-                changeDate: currentCommit.mergedDate,
-                changeDay: currentCommit.mergedDay-1,
-                changeMonth: currentCommit.mergedMonth,
-                changeYear: currentCommit.mergedYear
+                changeDate: currentCommit.mergedDate
             };
 
             statusChangeHistory.unshift(statusChange);
