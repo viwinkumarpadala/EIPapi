@@ -1,7 +1,16 @@
-1)general stats api of the repository  
-2)Info for a particular pr number api
-3)current statuses api 
-4)status change api 
-5)all info about a .md file api 
-6)current statuses of each eip 
-7)Latest month insights 
+done
+1)general stats api of the repository  (can be done)
+7)Latest month insights (not sure)
+3)current statuses api (can be done)
+8)commit history of a .md file 
+2)Info for a particular pr number api   (can be done)
+
+current
+
+
+
+
+waiting 
+
+4)status change api (can be done)
+
