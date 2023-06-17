@@ -8,8 +8,8 @@ async function getGitHubInsightsForMonth(owner, repo, year, month) {
     // Get the start and end dates of the month
     // const startDate = new Date(year, month - 1, 1);
     // const endDate = new Date(year, month, 0);
-    const startDate = new Date('2023-06-05');
-    const endDate = new Date('2023-06-12');
+    const startDate = new Date('2023-06-01');
+    const endDate = new Date('2023-06-30');
     const startISODate = startDate.toISOString();
     const endISODate = endDate.toISOString();
 

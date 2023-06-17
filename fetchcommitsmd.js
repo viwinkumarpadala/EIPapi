@@ -6,7 +6,7 @@ const accessToken = process.env.ACCESS_TOKEN;
 async function getFileCommitHistory() {
     try {
         const repositoryURL = 'https://api.github.com/repos/ethereum/EIPs';
-        const filePath = 'EIPS/eip-100.md';
+        const filePath = 'EIPS/eip-6454.md';
         const commitsURL = `${repositoryURL}/commits`;
         
         const response = await axios.get(commitsURL, {
