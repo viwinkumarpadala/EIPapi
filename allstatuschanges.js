@@ -31,6 +31,7 @@ async function fetchAndStoreEipHistory() {
           eip: statusChange.eip,
           fromStatus: statusChange.fromStatus,
           toStatus: statusChange.toStatus,
+          changeDate: statusChange.changeDate
         });
 
         if (!existingStatusChange) {
@@ -145,7 +146,7 @@ function getStatusChangeHistory(commitHistory) {
   }
 
 //   for (let i = commitHistory.length - 1; i > 0; i--) {
-    const currentCommit = commitHistory[0];
+  const currentCommit = commitHistory[commitHistory.length - 1];
 
     if (currentCommit.status === 'Draft') {
       const changeDate = new Date(currentCommit.mergedDate);
