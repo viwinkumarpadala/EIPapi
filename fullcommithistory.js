@@ -52,9 +52,12 @@ async function getFileContents(commit, filePath) {
         const fileContent = base64ToText(fileData.content);
 
         let metadata = extractData(fileContent);
+        // console.log(fileContent);
+        // console.log("metadata:");
+        // console.log(metadata)
         if (Object.keys(metadata).length === 0) {
-            const regex = /EIP:\s*(\d+)\nTitle:\s*(.*?)\nAuthor:\s*(.*?)\nType:\s*(.*?)\nCategory:\s*(.*?)\nStatus:\s*(.*?)\nCreated:\s*(.*)/i;
-            const [, eip, title, author, type, category, status, created] = regex.exec(fileContent);
+            const regex = /EIP:\s*(\d+)\nTitle:\s*(.*?)\nAuthor:\s*(.*?)\nTo:\s*(.*?)\nType:\s*(.*?)\nCategory:\s*(.*?)\nStatus:\s*(.*?)\nDeadline:\s*(.*?)\nCreated:\s*(.*?)\nRequires:\s*(.*)/i;
+            const [, eip, title, author, type, category, status, created,to,deadline,requires] = regex.exec(fileContent);
 
             metadata = {
                 eip,
@@ -64,6 +67,9 @@ async function getFileContents(commit, filePath) {
                 category,
                 status,
                 created,
+                to,
+                deadline,
+                requires
             };
         }
 
@@ -74,6 +80,16 @@ async function getFileContents(commit, filePath) {
         console.log('Type:', metadata.type || 'undefined');
         console.log('Category:', metadata.category || 'undefined');
         console.log('Created:', metadata.created || 'undefined');
+        console.log('Discussions:', metadata.to || 'undefined');
+        console.log('deadline:', metadata.deadline || 'undefined');
+        console.log('requires:', metadata.requires || 'undefined');
+
+        // console.log('Created At:', metadata.created.toDateString());
+        const [year, month, date] = metadata.created.split("-");
+        const newcreateddate = new Date(year, month - 1, date);
+        console.log('created Day:', newcreateddate.getDate());
+        console.log('created Month:', newcreateddate.getMonth() + 1);
+        console.log('created Year:', newcreateddate.getFullYear());
 
         const pullRequestsURL = `${repositoryURL}/commits/${commitSha}/pulls`;
         const pullRequestsResponse = await axios.get(pullRequestsURL, {
@@ -81,6 +97,35 @@ async function getFileContents(commit, filePath) {
                 Authorization: `Bearer ${accessToken}`,
             },
         });
+
+        const commitinfourl = `${repositoryURL}/commits/${commitSha}`;
+        const commitinfoResponse = await axios.get(commitinfourl, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        const commitinfoData= commitinfoResponse.data
+        // console.log(commitinfoData);
+        const message=commitinfoData.commit.message
+
+        const object = commitinfoData.files[0];
+        const totalchanges = object.changes 
+        const totalinsertions = object.additions
+        const totaldeletions = object.deletions  // Accessing the first object in the array
+        // console.log(object)
+        const previousDeadlineMatch = object.patch.match(/-last-call-deadline:\s(\d{4}-\d{2}-\d{2})/);
+        const newDeadlineMatch = object.patch.match(/\+last-call-deadline:\s(\d{4}-\d{2}-\d{2})/);
+
+        const previousDeadline = previousDeadlineMatch ? previousDeadlineMatch[1] : undefined;
+        const newDeadline = newDeadlineMatch ? newDeadlineMatch[1] : undefined;
+
+        console.log("Previous Deadline:", previousDeadline);
+        console.log("New Deadline:", newDeadline);
+        console.log("total changes:",totalchanges)
+        console.log("insertions:",totalinsertions)
+        console.log("deletions:",totaldeletions)
+        // console.log(message)
 
         const pullRequestsData = pullRequestsResponse.data;
         let pullRequestData = {};
@@ -96,6 +141,7 @@ async function getFileContents(commit, filePath) {
             });
 
             pullRequestData = pullRequestResponse.data;
+            // console.log(pullRequestData)
             if (pullRequestData.merged) {
                 const mergedDate = new Date(pullRequestData.merged_at);
                 console.log('Merged Date:', mergedDate.toDateString());
@@ -120,12 +166,12 @@ async function getFileContents(commit, filePath) {
         console.log('----------------------------------------------------------------------------------------');
 
         try {
-            // const existingEip = await EipHistory.findOne({ commitSha: commitSha });
+            const existingEip = await EipHistory.findOne({ commitSha: commitSha, eip:metadata.eip });
 
-            // if (existingEip) {
-            //     console.log('EIP with the same commit SHA already exists. Skipping...');
-            //     return;
-            // }
+            if (existingEip) {
+                console.log('EIP with the same commit SHA already exists. Skipping...');
+                return;
+            }
 
             const eipHistory = new EipHistory({
                 commitSha,
@@ -134,19 +180,32 @@ async function getFileContents(commit, filePath) {
                 title: metadata.title || 'undefined',
                 author: metadata.author || 'undefined',
                 status: metadata.status || 'undefined',
+                discussion: metadata.to || 'undefined',
+                deadline: metadata.deadline || 'undefined',
+                requires: metadata.requires || 'undefined',
                 type: metadata.type || 'undefined',
                 category: metadata.category || 'undefined',
-                created: metadata.created || 'undefined',
+                message: message || 'undefined',
+                created: newcreateddate || 'undefined',
                 mergedDate: (pullRequestData.merged ? new Date(pullRequestData.merged_at).toDateString() : commitDate.toDateString()),
                 prNumber: pullRequestData.number || 0,
                 closedDate: new Date(commit.commit.committer.date).toDateString(),
                 mergedDay: (pullRequestData.merged ? new Date(pullRequestData.merged_at).getDate() : commitDate.getDate()),
-                mergedMonth: (pullRequestData.merged ? new Date(pullRequestData.merged_at).getMonth() + 1 : commitDate.getMonth() + 1),
+                mergedMonth: (pullRequestData.merged ? new Date(pullRequestData.merged_at).getMonth()+1 : commitDate.getMonth()+1),
                 mergedYear: (pullRequestData.merged ? new Date(pullRequestData.merged_at).getFullYear() : commitDate.getFullYear()),
+                createdDate: newcreateddate.getDate() || null,
+                createdMonth: newcreateddate.getMonth() + 1 || null,
+                createdYear: newcreateddate.getFullYear() || null,
+                changes: totalchanges || null,
+                insertions: totalinsertions || null,
+                deletions: totaldeletions || null,
+                previousdeadline: previousDeadline || 'undefined',
+                newdeadline: newDeadline || 'undefined',
             });
             
 
             await eipHistory.save();
+            console.log(eipHistory);
             count++;
             console.log('Data saved successfully.');
             console.log("count: ",count);
@@ -178,6 +237,7 @@ async function processMarkdownFiles() {
 
         console.log('Markdown Files:');
         console.log(filePaths);
+    //    const filePaths = ['EIPS/eip-6454.md']
 
         let requestCount = 0;
 
@@ -211,12 +271,12 @@ async function processMarkdownFiles() {
 
                     await getFileContents(commit, filePath);
 
-                    requestCount++;
-                    if (requestCount >= 900) {
-                        console.log('Request limit reached. Waiting for an hour...');
-                        await new Promise((resolve) => setTimeout(resolve, 60 * 60 * 1000));
-                        requestCount = 0;
-                    }
+                    // requestCount++;
+                    // if (requestCount >= 900) {
+                    //     console.log('Request limit reached. Waiting for an hour...');
+                    //     await new Promise((resolve) => setTimeout(resolve, 60 * 60 * 1000));
+                    //     requestCount = 0;
+                    // }
                 }
             } else {
                 console.log('No commit history found.');

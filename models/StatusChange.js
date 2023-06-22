@@ -14,22 +14,21 @@ const statusChangeSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    changeDate: {
-        type: Date,
-        required: true,
-    },
-    changedDay: {
-        type: Number,
-        required: true,
-    },
-    changedMonth: {
-        type: Number,
-        required: true,
-    },
-    changedYear: {
-        type: Number,
-        required: true,
-    },
+    title: { type: String },
+    status:{type: String}, 
+    author: { type: String },
+    created: { type: Date },
+    changeDate: { type: Date },
+    type: { type: String },
+    category: { type: String },
+    discussion: { type: String },
+    deadline: { type: String },
+    requires: { type: String },
+    changedDay: { type: Number },
+    changedMonth: { type: Number },
+    changedYear: { type: Number },
+    createdMonth: { type: Number },
+    createdYear: { type: Number },
 });
 
 // Create the StatusChange model

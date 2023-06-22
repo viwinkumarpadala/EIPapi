@@ -316,15 +316,28 @@ async function getGitHubInsightsForMonth(owner, repo, year, month) {
 
 
 app.get('/alleips', (req, res) => {
-    MdFiles.find()
-        .then((eips) => {
-            res.json(eips);
+    MdFiles.aggregate([
+        {
+            $group: {
+                _id: '$status',
+                eips: { $push: '$$ROOT' }
+            }
+        }
+    ])
+        .then((result) => {
+            const formattedResult = result.map((group) => ({
+                status: group._id,
+                count: group.eips.length,
+                eips: group.eips
+            }));
+            res.json(formattedResult);
         })
         .catch((error) => {
             console.error('Error retrieving EIPs:', error.message);
             res.status(500).json({ error: 'Internal server error' });
         });
 });
+
 
 // Route to get a specific EIP by its number
 app.get('/eips/:number', (req, res) => {
@@ -479,11 +492,18 @@ app.get('/statusChanges/:year/:month', async (req, res) => {
         const endDate = new Date(yearNum, monthNum, 0);
 
         // Query the database for status changes within the specified date range
-        const statusChanges = await StatusChange.find({
-            changeDate: { $gte: startDate, $lte: endDate },
-        });
+        const statusChanges = await StatusChange.aggregate([
+            { $match: { changeDate: { $gte: startDate, $lte: endDate } } },
+            {
+                $group: {
+                    _id: '$toStatus',
+                    count: { $sum: 1 },
+                    statusChanges: { $push: '$$ROOT' },
+                },
+            },
+        ]);
 
-        console.log(statusChanges.length);
+        console.log(statusChanges);
 
         res.json(statusChanges);
     } catch (error) {

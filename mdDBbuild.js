@@ -43,11 +43,14 @@ const extractDetails = (dataString) => {
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-}).then(() => {
-    console.log('Connected to the database');
-}).catch((error) => {
-    console.log('Error connecting to the database:', error);
-});
+})
+    .then(() => {
+        console.log('Connected to the database');
+        getallinfo();
+    })
+    .catch((error) => {
+        console.log('Error connecting to the database:', error);
+    });
 
 const getallinfo = async () => {
     try {
@@ -57,14 +60,34 @@ const getallinfo = async () => {
 
         const response = await axios.get('https://api.github.com/repos/ethereum/EIPs/contents/EIPS', { headers });
         const allinfo = response.data;
-        let count = 0;
+        let count = 1;
 
         for (const obj of allinfo) {
             const url = obj.url;
             const result = await axios.get(url, { headers });
             const resultContent = base64ToText(result.data.content);
-            const extractedData = extractData(resultContent);
-            const extractedDetails = extractDetails(resultContent);
+
+            let extractedData = extractData(resultContent);
+            if (Object.keys(extractedData).length === 0) {
+                const regex = /EIP:\s*(\d+)\nTitle:\s*(.*?)\nAuthor:\s*(.*?)\nTo:\s*(.*?)\nType:\s*(.*?)\nCategory:\s*(.*?)\nStatus:\s*(.*?)\nDeadline:\s*(.*?)\nCreated:\s*(.*?)\nRequires:\s*(.*)/i;
+                const [, eip, title, author, type, category, status, created, to, deadline, requires] = regex.exec(resultContent);
+
+                extractedData = {
+                    eip,
+                    title,
+                    author,
+                    type,
+                    category,
+                    status,
+                    created,
+                    to,
+                    deadline,
+                    requires,
+                };
+            }
+
+            const [year, month, date] = extractedData.created.split("-");
+            const newcreateddate = new Date(year, month - 1, date);
 
             try {
                 const newMdFile = new MdFiles({
@@ -74,9 +97,14 @@ const getallinfo = async () => {
                     status: extractedData.status || '',
                     type: extractedData.type || '',
                     category: extractedData.category || '',
-                    created: extractedData.created || '',
+                    created: newcreateddate || 'undefined',
+                    requires: extractedData.requires || '',
+                    discussion: extractedData.to || '',
+                    deadline: extractedData.deadline || '',
+                    unique_ID: count || null,
                 });
 
+                console.log(newMdFile);
                 await newMdFile.save();
                 count++;
                 console.log('Data saved successfully.');
@@ -92,7 +120,8 @@ const getallinfo = async () => {
         }
     } catch (error) {
         console.log('Error:', error);
+    } finally {
+        mongoose.disconnect();
+        console.log('Disconnected from the database');
     }
 };
-
-getallinfo();
