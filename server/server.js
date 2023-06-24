@@ -316,7 +316,7 @@ async function getGitHubInsightsForMonth(owner, repo, year, month) {
 
 
 app.get('/alleips', (req, res) => {
-    MdFiles.aggregate([
+    StatusChange.aggregate([
         {
             $group: {
                 _id: '$status',
