@@ -319,16 +319,41 @@ app.get('/alleips', (req, res) => {
     StatusChange.aggregate([
         {
             $group: {
-                _id: '$status',
+                _id: {
+                    status: '$status',
+                    changedYear: { $year: '$changeDate' },
+                    changedMonth: { $month: '$changeDate' }
+                },
+                count: { $sum: 1 },
                 eips: { $push: '$$ROOT' }
+            }
+        },
+        {
+            $group: {
+                _id: '$_id.status',
+                eips: {
+                    $push: {
+                        changedYear: '$_id.changedYear',
+                        changedMonth: '$_id.changedMonth',
+                        count: '$count',
+                        eips: '$eips'
+                    }
+                }
             }
         }
     ])
         .then((result) => {
             const formattedResult = result.map((group) => ({
                 status: group._id,
-                count: group.eips.length,
-                eips: group.eips
+                eips: group.eips.reduce((acc, eipGroup) => {
+                    const { changedYear, changedMonth, count, eips } = eipGroup;
+                    acc[changedYear] = acc[changedYear] || {};
+                    acc[changedYear][changedMonth] = {
+                        count,
+                        eips
+                    };
+                    return acc;
+                }, {})
             }));
             res.json(formattedResult);
         })
@@ -337,6 +362,7 @@ app.get('/alleips', (req, res) => {
             res.status(500).json({ error: 'Internal server error' });
         });
 });
+
 
 
 // Route to get a specific EIP by its number
