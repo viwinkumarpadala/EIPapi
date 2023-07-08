@@ -11,5 +11,26 @@
     "node-cron": "^3.0.2",
     "octokit": "^2.1.0",
     "simple-git": "^3.19.0"
-  }
+  },
+  "engines":{
+    "node":"14.x"
+  },
+  "scripts": {
+    "start": "nodemon scheduler"
+  },
+  "name": "my_approach",
+  "description": "This is a new eips api that I am trying to design.",
+  "version": "1.0.0",
+  "main": "allstatuschanges - Copy (2).js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viwinkumarpadala/EIPinsights.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/viwinkumarpadala/EIPinsights/issues"
+  },
+  "homepage": "https://github.com/viwinkumarpadala/EIPinsights#readme"
 }
