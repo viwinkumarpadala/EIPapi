@@ -9,11 +9,12 @@
     "mongodb": "^5.6.0",
     "mongoose": "^7.2.2",
     "node-cron": "^3.0.2",
+    "nodemon": "^2.0.22",
     "octokit": "^2.1.0",
     "simple-git": "^3.19.0"
   },
-  "engines":{
-    "node":"18.x"
+  "engines": {
+    "node": "18.x"
   },
   "scripts": {
     "start": "nodemon scheduler"
@@ -22,7 +23,6 @@
   "description": "This is a new eips api that I am trying to design.",
   "version": "1.0.0",
   "main": "scheduler.js",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/viwinkumarpadala/EIPinsights.git"
