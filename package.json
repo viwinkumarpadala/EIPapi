@@ -21,7 +21,7 @@
   "name": "my_approach",
   "description": "This is a new eips api that I am trying to design.",
   "version": "1.0.0",
-  "main": "allstatuschanges - Copy (2).js",
+  "main": "scheduler.js",
   "devDependencies": {},
   "repository": {
     "type": "git",
